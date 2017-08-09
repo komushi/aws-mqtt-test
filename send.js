@@ -1,10 +1,13 @@
 const AWS = require('aws-sdk');
 const AWSMqtt = require('aws-mqtt');
 const WebSocket = require('ws');
+const prompt = require('prompt');
 
-AWS.config.loadFromPath('./config/aws_credentials.json');
 
-console.log(AWS.config.credentials);
+
+AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
+AWS.config.region = 'ap-northeast-1';
+
 
 const client = AWSMqtt.connect({
   WebSocket: WebSocket, 
@@ -14,16 +17,24 @@ const client = AWSMqtt.connect({
   clientId: 'mqtt-client-' + (Math.floor((Math.random() * 100000) + 1)), // clientId to register with MQTT broker. Need to be unique per client
 });
 
-client.on('connect', () => {
-  client.subscribe('/myTopic')
+const sendContents = function () {
+
+  prompt.get(['contents'], function (err, result) {
+    client.publish('topic001', result.contents);
+  });
+}
+
+client.on('connect', (packet) => {
+  // console.log('connected', packet); 
+  client.subscribe('topic001');
+  sendContents();
+
 });
+
 client.on('message', (topic, message) => {
-  console.log(topic, message.toString('utf-8'));
-  
+  console.log(message.toString('utf-8'));
+  sendContents();
 });
-client.on('close', () => {
-  // ...
-});
-client.on('offline', () => {
-  // ...
-});
+
+
+prompt.start();

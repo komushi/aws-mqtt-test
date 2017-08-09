@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "aws-mqtt": "^0.2.2",
-    "aws-sdk": "^2.18.0",
-    "ws": "^2.1.0"
+    "aws-sdk": "latest",
+    "ws": "^2.1.0",
+    "prompt":"1.*"
   }
 }
